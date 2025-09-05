@@ -49,3 +49,76 @@ ON FEB.orderid=CUST.order_id
 WHERE FEB.quantity>2
 AND length(orderid) = 6
 AND orderid <> 'Order ID';
+
+
+
+-- In this file I focus on filtering orders in the Customer & Order Anaylitics
+
+-- 1. How many of each type of headphone were sold in February?
+SELECT SUM(QuantitY), Product
+FROM BIT_DB.FebSales
+WHERE Product LIKE '%Headphones%'
+AND length(orderid) = 6
+AND orderid <> 'Order ID'
+GROUP BY Product;
+
+-- 2. What was the average amount spent per account in February?
+SELECT AVG(Price*Quantity)
+FROM BIT_DB.FebSales Feb
+JOIN BIT_DB.customers Cust
+ON Feb.orderID = Cust.order_id
+AND length(orderid) = 6
+AND orderid <> 'Order ID';
+
+-- 3. Find order ids from Georgia (GA) where the order has an average price greater than $1,000. Only find orders from dates beginning with ‘04/1’. Assume that the dates are stored in the MM/DD/YY HH:MM format.
+SELECT orderID
+FROM BIT_DB.AprSales Apr
+WHERE orderdate LIKE '04/1%' AND location LIKE '%GA%'
+AND length(orderid) = 6
+AND orderid <> 'Order ID'
+GROUP BY orderID
+HAVING AVG(price) > 1000;
+
+-- 4. you’ve been given the following results from the MaySales table. Can you reverse engineer a SQL query that returns these results?
+-- MaySales Results
+-- location	                                  orderID
+-- 818 Wilson St, Los Angeles, CA 90001	        194305
+-- 2 Center St, Austin, TX 73301	              194315
+-- 960 Park St, San Francisco, CA 94016	        194325
+-- 53 Ridge St, Portland, OR 97035	            194335
+-- 734 Hickory St, New York City, NY 10001      194345
+-- 196 Cherry St, Portland, OR 97035	          194355
+-- 924 13th St, Los Angeles, CA 90001	          194365
+-- 602 Washington St, New York City, NY 10001   194375
+-- 399 12th St, San Francisco, CA 94016	        194385
+-- 434 Pine St, Seattle, WA 98101	              194395
+
+SELECT location, orderID
+FROM BIT_DB.MaySales May
+WHERE orderID LIKE '1943_5'
+AND length(orderid) = 6
+AND orderid <> 'Order ID'
+ORDER BY orderID;
+
+-- 5. Which product brought in the most revenue in January and how much revenue did it bring in total?
+SELECT Product, Sum(price*Quantity) as Revenue
+FROM BIT_DB.JanSales Jan
+WHERE length(orderid) = 6
+AND orderid <> 'Order ID'
+Group BY Product
+ORDER BY Revenue desc
+LIMIT 1;
+--OR
+SELECT Product, Sum(price*Quantity) as Revenue
+FROM BIT_DB.JanSales Jan
+WHERE length(orderid) = 6
+AND orderid <> 'Order ID'
+Group BY Product
+HAVING SUM(price * Quantity) = 
+    (SELECT MAX(Revenue)
+    FROM 
+        (SELECT SUM(price * Quantity) AS Revenue
+        FROM BIT_DB.JanSales
+        WHERE length(orderid) = 6
+        AND orderid <> 'Order ID'
+        GROUP BY Product));
