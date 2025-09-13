@@ -1,3 +1,5 @@
+-- Here I demonstrate using JOIN functions as I analyzed this Climate Conference Data.
+
 **Schema (SQLite v3.39)**
 
       CREATE TABLE vips (
